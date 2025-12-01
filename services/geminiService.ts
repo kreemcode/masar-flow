@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { StepType, Step } from '../types';
 
-const apiKey = process.env.API_KEY || '';
+const apiKey = process.env.GEMINI_API_KEY || '';
 const ai = new GoogleGenAI({ apiKey });
 
 interface GenerateOptions {

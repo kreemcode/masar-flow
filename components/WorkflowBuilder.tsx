@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Using react-router-dom inside HashRouter
 import { Plus, Save, Wand2, Trash2, MapPin, List, Type, Image as ImageIcon, Camera, X, Globe, Search } from 'lucide-react';
 import { db } from '../services/db';
-import { Step, StepType, Workflow } from '../types';
-import { generateWorkflowFromPrompt } from '../services/geminiService';
+import { Step, StepType, Workflow, AIModel } from '../types';
+import { generateWorkflowFromPrompt } from '../services/aiProviderService';
+import { getDefaultAIModel } from '../services/settingsService';
 import { useLanguage } from './LanguageContext';
+import { ModelSelector } from './ModelSelector';
 
 export const WorkflowBuilder: React.FC = () => {
   const { t, language } = useLanguage();
@@ -19,6 +21,7 @@ export const WorkflowBuilder: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [useSearch, setUseSearch] = useState(true);
   const [includeMedia, setIncludeMedia] = useState(true);
+  const [selectedModel, setSelectedModel] = useState<AIModel | null>(getDefaultAIModel());
 
   const handleAddStep = (type: StepType) => {
     const newStep: Step = {
@@ -53,14 +56,20 @@ export const WorkflowBuilder: React.FC = () => {
   };
 
   const handleAiGenerate = async () => {
-    if (!aiPrompt) return;
+    if (!aiPrompt || !selectedModel) {
+      alert('الرجاء اختيار نموذج أولاً وإدخال وصف المهمة');
+      return;
+    }
     setIsGenerating(true);
-    const result = await generateWorkflowFromPrompt(aiPrompt, language, { useSearch, includeMedia });
+    const result = await generateWorkflowFromPrompt(aiPrompt, language, selectedModel, { useSearch, includeMedia });
     setIsGenerating(false);
     if (result) {
       setTitle(result.title);
       setDescription(result.description);
       setSteps(result.steps);
+      setAiPrompt('');
+    } else {
+      alert('فشل في توليد المهام. تأكد من مفتاح API الخاص بالنموذج');
     }
   };
 
@@ -112,9 +121,17 @@ export const WorkflowBuilder: React.FC = () => {
         
         {/* AI Section */}
         <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl border border-indigo-100 shadow-sm">
-          <div className="flex gap-2 items-center mb-3">
+          <div className="flex gap-2 items-center mb-4">
              <Wand2 className="text-indigo-600" size={24} />
              <h3 className="font-bold text-indigo-900">{t('ai_generate')}</h3>
+          </div>
+          
+          {/* Model Selector */}
+          <div className="mb-4 bg-white p-4 rounded-lg">
+            <ModelSelector 
+              selectedModel={selectedModel}
+              onModelChange={setSelectedModel}
+            />
           </div>
           
           <div className="flex flex-col gap-3">
@@ -128,7 +145,7 @@ export const WorkflowBuilder: React.FC = () => {
                 />
                 <button 
                 onClick={handleAiGenerate}
-                disabled={isGenerating || !aiPrompt}
+                disabled={isGenerating || !aiPrompt || !selectedModel}
                 className="bg-indigo-600 text-white px-4 py-2 rounded-xl font-medium hover:bg-indigo-700 disabled:opacity-50 flex items-center justify-center min-w-[60px]"
                 >
                 {isGenerating ? <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> : <Wand2 size={20} />}

@@ -7,7 +7,7 @@ const MODELS_KEY = 'masar-flow-ai-models';
 const DEFAULT_AI_MODELS: AIModel[] = [
   {
     id: 'gemini-default',
-    name: 'Google Gemini',
+    name: 'Google Gemini 2.0 Flash',
     provider: 'gemini',
     modelName: 'gemini-2.0-flash',
     apiKey: '', // Will be filled from env or user input
@@ -17,9 +17,9 @@ const DEFAULT_AI_MODELS: AIModel[] = [
   },
   {
     id: 'openai-default',
-    name: 'OpenAI GPT-4',
+    name: 'OpenAI GPT-4o',
     provider: 'openai',
-    modelName: 'gpt-4-turbo',
+    modelName: 'gpt-4o',
     apiKey: '',
     isDefault: false,
     imageGeneration: true,
@@ -27,9 +27,19 @@ const DEFAULT_AI_MODELS: AIModel[] = [
   },
   {
     id: 'claude-default',
-    name: 'Anthropic Claude',
+    name: 'Anthropic Claude 3.5 Sonnet',
     provider: 'anthropic',
-    modelName: 'claude-3-opus-20240229',
+    modelName: 'claude-3-5-sonnet-20241022',
+    apiKey: '',
+    isDefault: false,
+    imageGeneration: false,
+    createdAt: Date.now()
+  },
+  {
+    id: 'deepseek-default',
+    name: 'DeepSeek V3',
+    provider: 'deepseek',
+    modelName: 'deepseek-chat',
     apiKey: '',
     isDefault: false,
     imageGeneration: false,

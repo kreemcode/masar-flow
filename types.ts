@@ -8,7 +8,7 @@ export enum StepType {
 }
 
 // AI Model Types
-export type AIProvider = 'gemini' | 'openai' | 'anthropic' | 'custom';
+export type AIProvider = 'gemini' | 'openai' | 'anthropic' | 'deepseek' | 'custom';
 
 export interface AIModel {
   id: string;

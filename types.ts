@@ -7,6 +7,33 @@ export enum StepType {
   CHECKLIST = 'checklist'
 }
 
+// AI Model Types
+export type AIProvider = 'gemini' | 'openai' | 'anthropic' | 'custom';
+
+export interface AIModel {
+  id: string;
+  name: string;
+  provider: AIProvider;
+  apiKey: string;
+  modelName: string; // e.g., 'gemini-2.0-flash', 'gpt-4', 'claude-3-opus'
+  isDefault: boolean;
+  imageGeneration: boolean; // Can this model generate images?
+  createdAt: number;
+}
+
+// Image Provider Types
+export type ImageProvider = 'unsplash' | 'pexels' | 'dall-e' | 'none';
+
+export interface AppSettings {
+  aiModels: AIModel[];
+  defaultAIModel: string; // ID of default model
+  imageProvider: ImageProvider;
+  imageProviderApiKey?: string;
+  language: Language;
+  theme?: 'light' | 'dark';
+  updatedAt: number;
+}
+
 export interface ChecklistItem {
   id: string;
   label: string;

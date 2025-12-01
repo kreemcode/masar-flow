@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { LanguageProvider, useLanguage } from './components/LanguageContext';
 import { Dashboard } from './components/Dashboard';
 import { WorkflowBuilder } from './components/WorkflowBuilder';
 import { WorkflowRun } from './components/WorkflowRun';
+import { SettingsPanel } from './components/SettingsPanel';
 import { Settings, Home } from 'lucide-react';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { language, setLanguage, t } = useLanguage();
   const location = useLocation();
   const isRunMode = location.pathname.startsWith('/workflow/');
+  const [showSettings, setShowSettings] = useState(false);
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -36,12 +38,19 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 <Home size={24} />
                 <span>{t('dashboard')}</span>
             </div>
-            {/* Placeholder for Settings/Profile */}
-            <div className="flex flex-col items-center gap-1 opacity-50">
+            <button 
+              onClick={() => setShowSettings(true)}
+              className="flex flex-col items-center gap-1 hover:text-teal-600 transition"
+            >
                 <Settings size={24} />
-                <span>Settings</span>
-            </div>
+                <span>الإعدادات</span>
+            </button>
          </div>
+       )}
+
+       {/* Settings Modal */}
+       {showSettings && (
+         <SettingsPanel onClose={() => setShowSettings(false)} />
        )}
     </div>
   );

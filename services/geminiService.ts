@@ -1,8 +1,17 @@
 import { GoogleGenAI } from "@google/genai";
 import { StepType, Step } from '../types';
+import { getDefaultAIModel, getSettings } from './settingsService';
 
-const apiKey = process.env.GEMINI_API_KEY || '';
-const ai = new GoogleGenAI({ apiKey });
+// Get API key from settings or environment
+const getApiKey = (): string => {
+  const defaultModel = getDefaultAIModel();
+  if (defaultModel?.provider === 'gemini' && defaultModel.apiKey) {
+    return defaultModel.apiKey;
+  }
+  return process.env.GEMINI_API_KEY || '';
+};
+
+const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
 // Helper function to get image URL from Unsplash
 const getImageUrl = async (query: string): Promise<string | null> => {
@@ -35,7 +44,7 @@ export const generateWorkflowFromPrompt = async (
 ): Promise<{ title: string, description: string, steps: Step[] } | null> => {
   
   if (!apiKey) {
-    console.error("API Key missing");
+    console.error("API Key missing - Please configure AI model in Settings");
     return null;
   }
 

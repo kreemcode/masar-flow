@@ -1,0 +1,8 @@
+{
+  "name": "Masar Flow",
+  "description": "A progressive web app for managing knowledge workflows and tasks. Features offline support, multilingual interface, and AI-powered step generation.",
+  "requestFramePermissions": [
+    "geolocation",
+    "camera"
+  ]
+}

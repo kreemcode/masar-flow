@@ -3,15 +3,25 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = (import.meta as any).env.VITE_SUPABASE_URL;
 const supabaseAnonKey = (import.meta as any).env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
+const hasSupabase = !!supabaseUrl && !!supabaseAnonKey;
+if (!hasSupabase) {
   console.error('Missing Supabase credentials in environment variables');
 }
 
-export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
+export const supabase = hasSupabase ? createClient(supabaseUrl, supabaseAnonKey) : (null as any);
+
+function supabaseNotConfiguredError() {
+  return new Error('Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your deployment environment.');
+}
 
 // ==================== AUTH FUNCTIONS ====================
 
 export const signUp = async (email: string, password: string, fullName: string) => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Sign up error:', error);
+    return { user: null, error };
+  }
   try {
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -32,6 +42,11 @@ export const signUp = async (email: string, password: string, fullName: string) 
 };
 
 export const signIn = async (email: string, password: string) => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Sign in error:', error);
+    return { user: null, error };
+  }
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -47,6 +62,11 @@ export const signIn = async (email: string, password: string) => {
 };
 
 export const signOut = async () => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Sign out error:', error);
+    return { error };
+  }
   try {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
@@ -58,6 +78,11 @@ export const signOut = async () => {
 };
 
 export const getCurrentUser = async () => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Get current user error:', error);
+    return { user: null, error };
+  }
   try {
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error) throw error;
@@ -69,6 +94,10 @@ export const getCurrentUser = async () => {
 };
 
 export const onAuthStateChange = (callback: (user: any) => void) => {
+  if (!hasSupabase) {
+    // return a noop-like subscription object to avoid callers breaking
+    return { data: { subscription: { unsubscribe: () => {} } } } as any;
+  }
   return supabase.auth.onAuthStateChange((event, session) => {
     callback(session?.user || null);
   });
@@ -77,6 +106,11 @@ export const onAuthStateChange = (callback: (user: any) => void) => {
 // ==================== USER PROFILE FUNCTIONS ====================
 
 export const createUserProfile = async (userId: string, fullName: string, email: string) => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Create user profile error:', error);
+    return { data: null, error };
+  }
   try {
     const { data, error } = await supabase
       .from('users')
@@ -99,6 +133,11 @@ export const createUserProfile = async (userId: string, fullName: string, email:
 };
 
 export const getUserProfile = async (userId: string) => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Get user profile error:', error);
+    return { data: null, error };
+  }
   try {
     const { data, error } = await supabase
       .from('users')
@@ -122,6 +161,11 @@ export const createWorkflow = async (
   description: string,
   steps: any[]
 ) => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Create workflow error:', error);
+    return { data: null, error };
+  }
   try {
     const { data, error } = await supabase
       .from('workflows')
@@ -146,6 +190,11 @@ export const createWorkflow = async (
 };
 
 export const getUserWorkflows = async (userId: string) => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Get user workflows error:', error);
+    return { data: null, error };
+  }
   try {
     const { data, error } = await supabase
       .from('workflows')
@@ -167,6 +216,11 @@ export const updateWorkflow = async (
   description: string,
   steps: any[]
 ) => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Update workflow error:', error);
+    return { data: null, error };
+  }
   try {
     const { data, error } = await supabase
       .from('workflows')
@@ -188,6 +242,11 @@ export const updateWorkflow = async (
 };
 
 export const deleteWorkflow = async (workflowId: string) => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Delete workflow error:', error);
+    return { error };
+  }
   try {
     const { error } = await supabase
       .from('workflows')
@@ -210,6 +269,11 @@ export const createGroup = async (
   description: string,
   privacy: 'private' | 'public' = 'private'
 ) => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Create group error:', error);
+    return { data: null, error };
+  }
   try {
     const { data, error } = await supabase
       .from('groups')
@@ -239,6 +303,11 @@ export const createGroup = async (
 };
 
 export const getUserGroups = async (userId: string) => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Get user groups error:', error);
+    return { data: null, error };
+  }
   try {
     const { data, error } = await supabase
       .from('group_members')
@@ -259,6 +328,11 @@ export const addGroupMember = async (
   userId: string,
   role: 'admin' | 'member' = 'member'
 ) => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Add group member error:', error);
+    return { data: null, error };
+  }
   try {
     const { data, error } = await supabase
       .from('group_members')
@@ -281,6 +355,11 @@ export const addGroupMember = async (
 };
 
 export const getGroupMembers = async (groupId: string) => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Get group members error:', error);
+    return { data: null, error };
+  }
   try {
     const { data, error } = await supabase
       .from('group_members')
@@ -296,6 +375,11 @@ export const getGroupMembers = async (groupId: string) => {
 };
 
 export const removeGroupMember = async (groupId: string, userId: string) => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Remove group member error:', error);
+    return { error };
+  }
   try {
     const { error } = await supabase
       .from('group_members')
@@ -319,6 +403,11 @@ export const shareWorkflow = async (
   sharedWithUserId?: string,
   sharedWithGroupId?: string
 ) => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Share workflow error:', error);
+    return { data: null, error };
+  }
   try {
     const { data, error } = await supabase
       .from('workflow_sharing')
@@ -342,6 +431,11 @@ export const shareWorkflow = async (
 };
 
 export const getSharedWorkflows = async (userId: string) => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Get shared workflows error:', error);
+    return { data: null, error };
+  }
   try {
     const { data, error } = await supabase
       .from('workflow_sharing')
@@ -360,6 +454,11 @@ export const getSharedWorkflows = async (userId: string) => {
 // ==================== SEARCH FUNCTIONS ====================
 
 export const searchWorkflows = async (query: string) => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Search workflows error:', error);
+    return { data: null, error };
+  }
   try {
     const { data, error } = await supabase
       .from('workflows')
@@ -376,6 +475,11 @@ export const searchWorkflows = async (query: string) => {
 };
 
 export const searchPublicWorkflows = async (query: string) => {
+  if (!hasSupabase) {
+    const error = supabaseNotConfiguredError();
+    console.error('Search public workflows error:', error);
+    return { data: null, error };
+  }
   try {
     const { data, error } = await supabase
       .from('workflow_sharing')
